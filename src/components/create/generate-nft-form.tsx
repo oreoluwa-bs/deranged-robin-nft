@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { HiArrowRight } from "react-icons/hi2";
+import { CgSpinnerTwo } from "react-icons/cg";
+import { Prediction } from "~/types";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -21,17 +23,12 @@ const imageSizes = [
 ];
 
 interface GenerateNFTFormProps {
-  onSuccess?: (prediction: {
-    type: "array";
-    items: {
-      type: "string";
-      format: "uri";
-    };
-    title: "Output";
-  }) => void;
+  existingPrediction: Prediction | null;
+  onSuccess?: (prediction: Prediction) => void;
 }
 
 export default function GenerateNFTForm({
+  existingPrediction,
   onSuccess = (v) => {
     console.log(v);
   },
@@ -39,6 +36,10 @@ export default function GenerateNFTForm({
   const [errors, setErrors] = useState<{ message: string | null }>({
     message: null,
   });
+  const isPredicting = existingPrediction
+    ? existingPrediction.status !== "succeeded" &&
+      existingPrediction.status !== "failed"
+    : false;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -64,7 +65,7 @@ export default function GenerateNFTForm({
 
     let { data: prediction, message } = (await response.json()) as {
       message: string;
-      data: any;
+      data: Prediction;
     };
     if (response.status !== 201) {
       setErrors({ message });
@@ -103,6 +104,7 @@ export default function GenerateNFTForm({
               id="prompt"
               className="min-h-[150px] w-full rounded-lg bg-slate-50/10 px-2 py-2"
               placeholder="Enter a prompt to create original, realistic images and art from a text description"
+              required
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -144,9 +146,16 @@ export default function GenerateNFTForm({
             </div>
           </div>
         </div>
-        <button className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white">
+        <button
+          className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white disabled:cursor-not-allowed disabled:bg-gray-300/5"
+          disabled={isPredicting}
+        >
           Generate
-          <HiArrowRight />
+          {isPredicting ? (
+            <CgSpinnerTwo className="animate-spin" />
+          ) : (
+            <HiArrowRight />
+          )}
         </button>
       </form>
       {errors.message ? (
