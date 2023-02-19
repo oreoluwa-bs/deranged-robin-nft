@@ -27,10 +27,27 @@ export default function CreateNFT() {
     ? prediction.status !== "succeeded" && prediction.status !== "failed"
     : false;
 
-  function mintNFT(_pred: Prediction) {
+  async function mintNFT(_pred: Prediction) {
     // Transfer image from replicate to web3 storage
+    const response = await fetch("/api/nft/generated/store", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        url: _pred.output[0],
+        filename: _pred.id,
+      }),
+    });
+
+    const { imageURI, imageURL } = await response.json();
+
+    console.log(imageURI, imageURL);
+
+    setPredictionURI(imageURL);
     // Mint
-    // write?.();
+    write?.();
+
     // Open share modal
   }
 
