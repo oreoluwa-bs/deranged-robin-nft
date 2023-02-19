@@ -57,7 +57,7 @@ export default function CreateNFT() {
 
   return (
     <div className="grid gap-12 md:grid-cols-2">
-      <div className="relative aspect-square overflow-hidden rounded-lg bg-white/5">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-slate-50/5">
         {prediction?.status === "succeeded" ? (
           <Image
             src={prediction.output[0]}
