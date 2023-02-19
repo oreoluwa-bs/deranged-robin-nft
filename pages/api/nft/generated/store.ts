@@ -51,7 +51,7 @@ async function POST(input: { url: string; filename: string }) {
   const contentType = imageFile.headers.get("Content-Type");
   const blob = await imageFile.blob();
   const file = new File([blob], input.filename, {
-    type: contentType ?? undefined,
+    type: blob.type ?? contentType ?? undefined,
   });
 
   // FETCH
