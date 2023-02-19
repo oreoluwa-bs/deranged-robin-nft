@@ -1,9 +1,13 @@
-import { ethers } from "hardhat";
+const { ethers } = require("hardhat");
 
 async function main() {
-  // const Lock = await ethers.getContractFactory("Lock");
-  // const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-  // await lock.deployed();
+  const DerangedRobin = await ethers.getContractFactory("DerangedRobin");
+  const derangedRobin = await DerangedRobin.deploy();
+
+  await derangedRobin.deployed();
+
+  console.log("NFT deployed to:", derangedRobin.address);
+
   // console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
 }
 

@@ -2,14 +2,16 @@
 
 import { WagmiConfig, createClient, configureChains } from "wagmi";
 import { mainnet, hardhat } from "wagmi/chains";
-// import { alchemyProvider } from "wagmi/providers/alchemy";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [hardhat],
-  [publicProvider()]
-  //   [alchemyProvider({ apiKey: "yourAlchemyApiKey" })]
+  [
+    publicProvider(),
+    alchemyProvider({ apiKey: process.env.ALCHEMY_GOERLI_API_KEY! }),
+  ]
 );
 
 const client = createClient({

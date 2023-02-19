@@ -3,11 +3,25 @@
 import Image from "next/image";
 import { useState } from "react";
 import { IoImagesOutline } from "react-icons/io5";
+import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import derangedRobinContractJSON from "artifacts/contracts/DerangedRobin.sol/DerangedRobin.json";
 import { Prediction } from "~/types";
 import GenerateNFTForm from "./generate-nft-form";
 
 export default function CreateNFT() {
   const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [predictionURI, setPredictionURI] = useState<string>();
+  const { address, isConnected } = useAccount();
+
+  const { config } = usePrepareContractWrite({
+    address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+    abi: derangedRobinContractJSON.abi,
+    functionName: "safeMint",
+    args: [address, predictionURI],
+    enabled: Boolean(predictionURI && address),
+  });
+
+  const { data, write } = useContractWrite(config);
 
   const isPredicting = prediction
     ? prediction.status !== "succeeded" && prediction.status !== "failed"
@@ -16,6 +30,7 @@ export default function CreateNFT() {
   function mintNFT(_pred: Prediction) {
     // Transfer image from replicate to web3 storage
     // Mint
+    // write?.();
     // Open share modal
   }
 
