@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   useAccount,
   useConnect,
@@ -8,7 +9,16 @@ import {
   //   useEnsName,
 } from "wagmi";
 
+export const useIsMounted = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  return mounted;
+};
+
 export default function ConnectWalletButton() {
+  const isMounted = useIsMounted();
   const { connect, connectors, error } = useConnect();
 
   const { address, isConnected } = useAccount();
@@ -17,6 +27,8 @@ export default function ConnectWalletButton() {
   const { disconnect } = useDisconnect();
 
   const connector = connectors[0];
+
+  if (!isMounted) return null;
 
   return (
     <>
