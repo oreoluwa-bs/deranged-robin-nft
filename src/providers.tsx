@@ -12,7 +12,7 @@ const { chains, provider, webSocketProvider } = configureChains(
   [hardhat],
   [
     publicProvider(),
-    alchemyProvider({ apiKey: process.env.ALCHEMY_GOERLI_API_KEY! }),
+    // alchemyProvider({ apiKey: process.env.ALCHEMY_GOERLI_API_KEY! }),
   ]
 );
 
@@ -36,12 +36,12 @@ const client = createClient({
         },
       }),
 
-      new WalletConnectConnector({
-        chains,
-        options: {
-          qrcode: true,
-        },
-      }),
+      // new WalletConnectConnector({
+      //   chains,
+      //   options: {
+      //     qrcode: true,
+      //   },
+      // }),
     ];
   },
 });

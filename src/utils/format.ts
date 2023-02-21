@@ -19,8 +19,9 @@ export function errorToErrorMessage(error: unknown) {
  * HTTP accessible
  */
 export function makeGatewayURL(cid: string, path: string) {
-  return `https://${cid}.ipfs.dweb.link/${encodeURIComponent(path)}`;
+  return `https://w3s.link/ipfs/${cid}/${encodeURIComponent(path)}`;
 }
+// .ipfs.dweb.link/${encodeURIComponent(path)}
 
 /**
  *  Return an IPFS URI for the given CID and path
@@ -28,4 +29,8 @@ export function makeGatewayURL(cid: string, path: string) {
  */
 export function makeGatewayURI(cid: string, filename: string) {
   return `ipfs://${cid}/${filename}`;
+}
+
+export function getFileExtension(url: string) {
+  return url.split(".").pop();
 }

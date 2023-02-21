@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-import { Web3Storage } from "web3.storage";
+import { Web3Storage, File as Web3File } from "web3.storage";
 import {
   errorToErrorMessage,
   makeGatewayURI,
@@ -50,13 +50,16 @@ async function POST(input: { url: string; filename: string }) {
   const imageFile = await fetch(input.url);
   const contentType = imageFile.headers.get("Content-Type");
   const blob = await imageFile.blob();
-  const file = new File([blob], input.filename, {
+  const bUDD = Buffer.from(await blob.arrayBuffer());
+  const file = new Web3File([bUDD], `NFT-${input.filename}`, {
     type: blob.type ?? contentType ?? undefined,
   });
+  // const filew = filesFromPath(input.url);
+  // const file = new File(filew, input.filename);
 
   // FETCH
   return client.put([file], {
-    name: `NFT-${input.filename}`,
+    // name: `NFT-${input.filename}`,
     maxRetries: 3,
   });
 }
