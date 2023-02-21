@@ -12,7 +12,7 @@ datasource db {
 
 model NFT {
   id             String @id @default(cuid())
-  imageUri       String
+  imageUrl       String
   creatorAddress String
   blockAddress   String
   prompt         String
