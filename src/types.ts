@@ -3,7 +3,7 @@ export interface Prediction {
   created_at: string;
   error?: any;
   id: string;
-  input: { prompt: string; image_dimensions: string };
+  input: { prompt: string; image_dimensions?: string };
   logs: string;
   metrics: { predict_time: number };
   output: string[];

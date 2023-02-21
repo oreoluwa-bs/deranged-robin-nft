@@ -36,7 +36,7 @@ async function POST(input: { prompt: string; width: string; height: string }) {
   return fetch("https://api.replicate.com/v1/predictions", {
     body: JSON.stringify({
       version:
-        "854e266e6660b98e601f310a5dc0cac633b826ba9514e5f2f3d47e856646f516",
+        "28cea91bdfced0e2dc7fda466cc0a46501c0edc84905b2120ea02e0707b967fd",
       input: {
         prompt: input.prompt,
         image_dimensions: `${input.width}x${input.height}`,
