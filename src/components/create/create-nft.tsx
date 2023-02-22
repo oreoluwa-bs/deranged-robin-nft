@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { IoImagesOutline } from "react-icons/io5";
 import {
   useAccount,
@@ -14,14 +14,24 @@ import { Prediction } from "~/types";
 import GenerateNFTForm from "./generate-nft-form";
 import { getFileExtension } from "~/utils/format";
 import { TransactionReceipt } from "@ethersproject/abstract-provider";
+import { Dialog, Transition } from "@headlessui/react";
+import { SendTransactionResult } from "@wagmi/core";
 
 export default function CreateNFT() {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isPrepareMintModalOpen, setIsPrepareMintModalOpen] = useState(false);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
-
   const [predictionURI, setPredictionURI] = useState<string>();
+  const [mintContract, setMintContract] =
+    useState<SendTransactionResult | null>(null);
   const { address } = useAccount();
 
-  const { config, error } = usePrepareContractWrite({
+  const {
+    config,
+    error,
+    isSuccess: isDonePreparing,
+    status,
+  } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
     abi: derangedRobinContractJSON.abi,
     functionName: "safeMint",
@@ -29,16 +39,24 @@ export default function CreateNFT() {
     enabled: Boolean(predictionURI && address),
   });
 
-  const mintContract = useContractWrite(config);
-
   const {
     isLoading: isMinting,
     isSuccess,
     data,
+    error: trnError,
   } = useWaitForTransaction({
-    hash: mintContract.data?.hash,
+    hash: mintContract?.hash,
     onSuccess(data) {
-      // Open share modal
+      setIsPrepareMintModalOpen(false);
+
+      // TOAST
+      setTimeout(() => {
+        // Open share modal
+        setIsShareModalOpen(true);
+      }, 1000);
+    },
+    onError(err) {
+      // TOAST
     },
   });
 
@@ -65,16 +83,8 @@ export default function CreateNFT() {
     // console.log({ imageURI, imageURL });
     setPredictionURI(imageURL);
 
-    // Mint;
-    mintContract.write?.();
-  }
-
-  function shareToExplore(
-    _pred: Prediction,
-    data: TransactionReceipt,
-    uri: string
-  ) {
-    // Add to DB
+    // Trigger mint
+    setIsPrepareMintModalOpen(true);
   }
 
   return (
@@ -120,16 +130,17 @@ export default function CreateNFT() {
             </button>
 
             {/* Opens popup that pushes to explore */}
-            <button
+            {/* <button
               className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white disabled:cursor-not-allowed"
               disabled={isPredicting || isMinting}
               onClick={() => {
                 if (!prediction || !data || !predictionURI) return;
-                shareToExplore(prediction, data, predictionURI);
+                // shareToExplore(prediction, data, predictionURI);
+                setIsShareModalOpen(true);
               }}
             >
               Share
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="max-w-sdm">
@@ -139,6 +150,220 @@ export default function CreateNFT() {
           />
         </div>
       </div>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        closeModal={() => setIsShareModalOpen(false)}
+        data={{
+          transactionReceipt: data!,
+          prediction: prediction!,
+          url: predictionURI!,
+          address: address!,
+        }}
+      />
+
+      <PrepareToMint
+        isOpen={isPrepareMintModalOpen}
+        closeModal={() => setIsPrepareMintModalOpen(false)}
+        config={config}
+        enableMint={isDonePreparing}
+        onSuccess={(data) => {
+          setMintContract(data);
+        }}
+      />
     </div>
+  );
+}
+
+function ShareModal({
+  isOpen,
+  closeModal,
+  data,
+}: {
+  isOpen: boolean;
+  closeModal: () => void;
+  data: {
+    transactionReceipt: TransactionReceipt;
+    url: string;
+    prediction: Prediction;
+    address: string;
+  };
+}) {
+  async function shareToExplore(
+    _pred: Prediction,
+    data: TransactionReceipt,
+    url: string,
+    address: string
+  ) {
+    // Add to DB
+
+    try {
+      const response = await fetch("/api/explore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageUrl: url,
+          creatorAddress: address,
+          blockAddress: data.blockHash,
+          transactionAddress: data.transactionHash,
+          prompt: _pred.input.prompt,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.status !== 201) {
+        throw new Error(result.message);
+      }
+
+      // toast
+      closeModal();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-black  p-6 text-left align-middle text-white shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-medium leading-6">
+                  Share your NFT
+                </Dialog.Title>
+                <div className="mt-2">
+                  <p className="text-sm ">
+                    Let others try to guess what the NFT prompt was
+                  </p>
+                </div>
+
+                <div className="mt-4 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white  disabled:cursor-not-allowed"
+                    onClick={() => {
+                      shareToExplore(
+                        data.prediction,
+                        data.transactionReceipt,
+                        data.url,
+                        data.address
+                      );
+                    }}
+                  >
+                    Share
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
+  );
+}
+
+function PrepareToMint({
+  isOpen,
+  closeModal,
+  config,
+  onSuccess,
+  enableMint,
+}: {
+  isOpen: boolean;
+  closeModal: () => void;
+  config: any;
+  enableMint: boolean;
+  onSuccess: (data: SendTransactionResult) => void;
+}) {
+  const mintContract = useContractWrite(config);
+
+  return (
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
+
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-black  p-6 text-left align-middle text-white shadow-xl transition-all">
+                <Dialog.Title as="h3" className="text-lg font-medium leading-6">
+                  {!enableMint
+                    ? "Preparing your transaction"
+                    : "Let's get minty"}
+                </Dialog.Title>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    {!enableMint
+                      ? "Hold on we are preparing your transaction"
+                      : "You're good to go"}
+                  </p>
+                </div>
+
+                <div className="mt-4 flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white  disabled:cursor-not-allowed"
+                    onClick={async () => {
+                      try {
+                        const res = await mintContract.writeAsync?.();
+
+                        if (res) {
+                          onSuccess(res);
+                        }
+                      } catch (error) {}
+                    }}
+                    disabled={!enableMint}
+                  >
+                    Mint my NFT
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
+        </div>
+      </Dialog>
+    </Transition>
   );
 }

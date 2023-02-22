@@ -8,6 +8,9 @@ const config = {
     //   url: process.env.ALCHEMY_GOERLI_RPC,
     //   accounts: [process.env.WALLET_PRIVATE_KEY!],
     // },
+    hardhat: {
+      initialBaseFeePerGas: 0,
+    },
     goerli: {
       url: process.env.ALCHEMY_GOERLI_RPC,
       accounts: [process.env.WALLET_PRIVATE_KEY],
