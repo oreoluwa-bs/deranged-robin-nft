@@ -158,7 +158,6 @@ export default function CreateNFT() {
           transactionReceipt: data!,
           prediction: prediction!,
           url: predictionURI!,
-          address: address!,
         }}
       />
 
@@ -186,14 +185,12 @@ function ShareModal({
     transactionReceipt: TransactionReceipt;
     url: string;
     prediction: Prediction;
-    address: string;
   };
 }) {
   async function shareToExplore(
     _pred: Prediction,
     data: TransactionReceipt,
-    url: string,
-    address: string
+    url: string
   ) {
     // Add to DB
 
@@ -205,7 +202,7 @@ function ShareModal({
         },
         body: JSON.stringify({
           imageUrl: url,
-          creatorAddress: address,
+          creatorAddress: data.from,
           blockAddress: data.blockHash,
           transactionAddress: data.transactionHash,
           prompt: _pred.input.prompt,
@@ -269,8 +266,7 @@ function ShareModal({
                       shareToExplore(
                         data.prediction,
                         data.transactionReceipt,
-                        data.url,
-                        data.address
+                        data.url
                       );
                     }}
                   >
