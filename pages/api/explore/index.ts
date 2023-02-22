@@ -41,6 +41,7 @@ async function POST(input: {
   imageUrl: string;
   creatorAddress: string;
   blockAddress: string;
+  transactionAddress: string;
   prompt: string;
   // meta:         {}
 }) {

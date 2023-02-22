@@ -11,12 +11,13 @@ datasource db {
 }
 
 model NFT {
-  id             String @id @default(cuid())
-  imageUrl       String
-  creatorAddress String
-  blockAddress   String
-  prompt         String
-  meta           Json   @default("{}")
+  id                 String @id @default(cuid())
+  imageUrl           String
+  creatorAddress     String
+  blockAddress       String
+  transactionAddress String
+  prompt             String
+  meta               Json   @default("{}")
 
   guessAttempts Int @default(0)
   solvedCount   Int @default(0)
