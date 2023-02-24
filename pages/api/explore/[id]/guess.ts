@@ -37,7 +37,7 @@ async function POST(input: { id: string; guess: string }) {
   if (!n) throw new Error("NFT not found");
 
   const similarity = calculateGuessSimilarity(input.guess, n.prompt);
-  const threshold = 0.7;
+  const threshold = 0.65;
   const isGuessSimilar = similarity > threshold;
 
   const nft = await prisma.nFT.update({
