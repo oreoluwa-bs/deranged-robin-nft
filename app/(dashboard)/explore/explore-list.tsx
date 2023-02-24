@@ -54,14 +54,16 @@ export default function ExploreList({ initialData }: ExploreListProps) {
         );
       })}
 
-      <div>
-        <button
-          className="mx-auto mt-10 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white lg:w-[unset]"
-          onClick={() => setSize(size + 1)}
-        >
-          Load More
-        </button>
-      </div>
+      {data?.[data.length - 1].data.cursor ? (
+        <div>
+          <button
+            className="mx-auto mt-10 flex w-full items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white lg:w-[unset]"
+            onClick={() => setSize(size + 1)}
+          >
+            Load More
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
