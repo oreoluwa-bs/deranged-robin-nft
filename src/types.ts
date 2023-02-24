@@ -16,3 +16,13 @@ export interface Prediction {
   version: string;
   webhook_completed?: any;
 }
+
+export interface Nft {
+  id: string;
+  imageUrl: string;
+  blockAddress: string;
+  creatorAddress: string;
+  guessAttempts: number;
+  solvedCount: number;
+  meta: {};
+}

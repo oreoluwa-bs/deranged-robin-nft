@@ -24,6 +24,10 @@ export default async function handler(
 
       case "GET":
         response = await GET(req.query as unknown as Parameters<typeof GET>[0]);
+
+        // console.log(req.query);
+        // console.log(response);
+
         res.status(200).json({ message: "success", data: response });
         break;
 
@@ -50,11 +54,13 @@ async function POST(input: {
   return post;
 }
 
-async function GET(input: { cursor?: string | null; limit: number }) {
+async function GET(input: { cursor?: string | null; limit: number | string }) {
   const { cursor, limit = 30 } = input;
 
+  console.log(input);
+
   const nfts = await prisma.nFT.findMany({
-    take: limit + 1,
+    take: Number(limit) + 1,
     cursor: cursor ? { id: cursor } : undefined,
     select: {
       id: true,
