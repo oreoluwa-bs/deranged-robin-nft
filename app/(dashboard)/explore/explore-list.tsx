@@ -153,14 +153,12 @@ function PostCard({ nft }: { nft: Nft }) {
             action: {
               label: "Mint NFT",
               onClick() {
-                //   @ts-ignore
                 router.push(`/create?prompt=${data.prompt}`);
               },
             },
           });
 
           setTimeout(() => {
-            //   @ts-ignore
             router.push(`/create?prompt=${data.prompt}`);
           }, 600);
         }}
@@ -179,7 +177,7 @@ function GuessNFT({
   isOpen: boolean;
   closeModal: () => void;
   nft: Nft;
-  onSuccess: (data: Nft) => void;
+  onSuccess: (data: Nft & { prompt: string }) => void;
 }) {
   const { trigger, isMutating, error } = useSWRMutation(
     `/api/explore/${nft.id}/guess`,
@@ -194,7 +192,7 @@ function GuessNFT({
     },
     {
       onSuccess(data) {
-        onSuccess(data);
+        onSuccess(data.data);
       },
       onError(err) {
         toast.error("Guess the prompt", {
