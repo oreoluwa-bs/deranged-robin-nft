@@ -18,6 +18,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { SendTransactionResult } from "@wagmi/core";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import { CgSpinnerTwo } from "react-icons/cg";
 
 export default function CreateNFT() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -313,6 +314,8 @@ function PrepareToMint({
 }) {
   const mintContract = useContractWrite(config);
 
+  const isLoading = mintContract.isLoading || !enableMint;
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -366,9 +369,12 @@ function PrepareToMint({
                         }
                       } catch (error) {}
                     }}
-                    disabled={!enableMint}
+                    disabled={isLoading}
                   >
                     Mint my NFT
+                    {isLoading ? (
+                      <CgSpinnerTwo className="animate-spin" />
+                    ) : null}
                   </button>
                 </div>
               </Dialog.Panel>

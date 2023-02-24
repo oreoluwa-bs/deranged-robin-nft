@@ -16,8 +16,8 @@ const { chains, provider, webSocketProvider } = configureChains(
     alchemyProvider({
       apiKey:
         process.env.NODE_ENV !== "production"
-          ? process.env.ALCHEMY_GOERLI_API_KEY!
-          : process.env.ALCHEMY_API_KEY!,
+          ? process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY!
+          : process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
     }),
   ]
 );
