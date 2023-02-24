@@ -50,7 +50,7 @@ export default function CreateNFT() {
     onSuccess(data) {
       setIsPrepareMintModalOpen(false);
 
-      toast.error("Minting NFT", {
+      toast.success("Minting NFT", {
         description: "NFT has successfully been minted",
         important: true,
       });
