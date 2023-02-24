@@ -31,7 +31,7 @@ export default async function handler(
 async function GET(input: { id: string }) {
   const nft = await prisma.nFT.findUnique({ where: { id: input.id } });
 
-  if (!nft) throw new Error("");
+  if (!nft) throw new Error("NFT not found");
 
   return nft;
 }
