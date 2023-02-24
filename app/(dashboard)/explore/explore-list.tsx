@@ -5,11 +5,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
+import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
 import useSWRMutation from "swr/mutation";
 import { useEnsName, useNetwork } from "wagmi";
 import type { Nft } from "~/types";
 import { fetcher } from "~/utils/fetcher";
+import { errorToErrorMessage } from "~/utils/format";
 
 interface RootObject {
   message: string;
@@ -145,8 +147,22 @@ function PostCard({ nft }: { nft: Nft }) {
         closeModal={() => setIsGuessModalOpen(false)}
         onSuccess={(data) => {
           //   console.log(data);
-          //   @ts-ignore
-          router.push(`/create?prompt=${data.prompt}`);
+          toast.success("Guess the prompt", {
+            description: "You win!!! 🚀",
+            important: true,
+            action: {
+              label: "Mint NFT",
+              onClick() {
+                //   @ts-ignore
+                router.push(`/create?prompt=${data.prompt}`);
+              },
+            },
+          });
+
+          setTimeout(() => {
+            //   @ts-ignore
+            router.push(`/create?prompt=${data.prompt}`);
+          }, 600);
         }}
         nft={nft}
       />
@@ -179,6 +195,12 @@ function GuessNFT({
     {
       onSuccess(data) {
         onSuccess(data);
+      },
+      onError(err) {
+        toast.error("Guess the prompt", {
+          description: errorToErrorMessage(err),
+          important: true,
+        });
       },
     }
   );
@@ -245,7 +267,7 @@ function GuessNFT({
                   </div>
                 </div>
 
-                {error?.message ? (
+                {/* {error?.message ? (
                   <div className="mt-10">
                     <div
                       role="alert"
@@ -254,7 +276,7 @@ function GuessNFT({
                       {error.message}
                     </div>
                   </div>
-                ) : null}
+                ) : null} */}
                 <form onSubmit={onSubmit} className="mt-4">
                   <div className="grid gap-2">
                     <div>
