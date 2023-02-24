@@ -81,8 +81,38 @@ function PostCard({ nft }: { nft: Nft }) {
     ? `${blockexplorer.url}/address/${nft.creatorAddress}`
     : "";
 
+  function getDifficultyColor(color: typeof nft.difficulty) {
+    let textColor = "text-white";
+    switch (color) {
+      case "Very Easy":
+      case "Easy":
+        textColor = "text-green-400";
+        break;
+
+      case "Medium":
+        textColor = "text-yellow-400";
+        break;
+
+      case "Hard":
+      case "Very Hard":
+        textColor = "text-red-400";
+        break;
+
+      default:
+        break;
+    }
+
+    return textColor;
+  }
+
+  const difficultyColor = getDifficultyColor(nft.difficulty);
   return (
-    <div className="overflow-hidden rounded-lg">
+    <div className="relative overflow-hidden rounded-lg">
+      <span
+        className={`absolute top-4 left-4 z-10 rounded-lg border-white bg-black px-2 py-2  text-sm ${difficultyColor} `}
+      >
+        {nft.difficulty}
+      </span>
       <div className="relative aspect-[1/0.85] w-full">
         <Image src={nft.imageUrl} alt="" fill className="object-cover" />
       </div>

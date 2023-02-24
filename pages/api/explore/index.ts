@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "~/lib/db";
 import { errorToErrorMessage } from "~/utils/format";
+import { calculateDifficulty } from "~/utils/nft";
 
 type Data = {
   message: string;
@@ -83,7 +84,10 @@ async function GET(input: { cursor?: string | null; limit: number | string }) {
   }
 
   return {
-    nfts,
+    nfts: nfts.map((item) => ({
+      ...item,
+      difficulty: calculateDifficulty(item.guessAttempts, item.solvedCount),
+    })),
     nextCursor,
   };
 }

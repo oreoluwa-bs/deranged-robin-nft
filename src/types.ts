@@ -24,5 +24,6 @@ export interface Nft {
   creatorAddress: string;
   guessAttempts: number;
   solvedCount: number;
+  difficulty: "???" | "Very Hard" | "Hard" | "Medium" | "Easy" | "Very Easy";
   meta: {};
 }
