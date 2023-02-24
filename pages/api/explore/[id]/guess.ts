@@ -36,7 +36,9 @@ async function POST(input: { id: string; guess: string }) {
 
   if (!n) throw new Error("NFT not found");
 
-  const isGuessSimilar = calculateGuessSimilarity(input.guess, n.prompt);
+  const similarity = calculateGuessSimilarity(input.guess, n.prompt);
+  const threshold = 0.79;
+  const isGuessSimilar = similarity > threshold;
 
   const nft = await prisma.nFT.update({
     where: { id: input.id },
@@ -46,7 +48,20 @@ async function POST(input: { id: string; guess: string }) {
     },
   });
 
-  if (!isGuessSimilar) throw new Error("Guess is not quite right");
+  if (!isGuessSimilar)
+    throw new Error(thresholdToMessage(threshold, similarity));
 
   return nft;
+}
+
+function thresholdToMessage(threshold: number, score: number) {
+  if (score > threshold) return "You win";
+
+  if (score > 0.6) return "Warm!!!!";
+
+  if (score > 0.4) return "Guess is not quite right!";
+
+  if (score > 0.3) return "Cold!!";
+
+  if (score > 0) return "Not even close!";
 }
