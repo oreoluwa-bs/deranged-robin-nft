@@ -12,10 +12,11 @@ import {
 import derangedRobinContractJSON from "artifacts/contracts/DerangedRobin.sol/DerangedRobin.json";
 import { Prediction } from "~/types";
 import GenerateNFTForm from "./generate-nft-form";
-import { getFileExtension } from "~/utils/format";
+import { errorToErrorMessage, getFileExtension } from "~/utils/format";
 import { TransactionReceipt } from "@ethersproject/abstract-provider";
 import { Dialog, Transition } from "@headlessui/react";
 import { SendTransactionResult } from "@wagmi/core";
+import { toast } from "sonner";
 
 export default function CreateNFT() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -49,14 +50,20 @@ export default function CreateNFT() {
     onSuccess(data) {
       setIsPrepareMintModalOpen(false);
 
-      // TOAST
+      toast.error("Minting NFT", {
+        description: "NFT has successfully been minted",
+        important: true,
+      });
       setTimeout(() => {
         // Open share modal
         setIsShareModalOpen(true);
       }, 1000);
     },
     onError(err) {
-      // TOAST
+      toast.error("Minting NFT", {
+        description: errorToErrorMessage(err),
+        important: true,
+      });
     },
   });
 
@@ -215,10 +222,14 @@ function ShareModal({
         throw new Error(result.message);
       }
 
-      // toast
+      toast.success("Share NFT", {
+        description: "Thanks for sharing your NFT",
+      });
       closeModal();
     } catch (error) {
-      console.log(error);
+      toast.error("Share NFT", {
+        description: errorToErrorMessage(error),
+      });
     }
   }
 

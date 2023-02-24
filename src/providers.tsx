@@ -7,6 +7,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { InjectedConnector } from "wagmi/connectors/injected";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { Toaster } from "sonner";
 
 const { chains, provider, webSocketProvider } = configureChains(
   [process.env.NODE_ENV !== "production" ? goerli : mainnet],
@@ -56,5 +57,10 @@ export default function AppProviders({
 }: {
   children: React.ReactNode;
 }) {
-  return <WagmiConfig client={client}>{children}</WagmiConfig>;
+  return (
+    <>
+      <Toaster richColors position="top-right" />
+      <WagmiConfig client={client}>{children}</WagmiConfig>;
+    </>
+  );
 }
