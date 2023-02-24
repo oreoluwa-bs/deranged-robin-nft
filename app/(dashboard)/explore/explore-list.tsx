@@ -124,8 +124,8 @@ function PostCard({ nft }: { nft: Nft }) {
           <Image src={nft.imageUrl} alt="" fill className="object-cover" />
         </div>
         <div className="bg-black py-4 px-4">
-          <div>
-            <Link href={blockAddressUrl} className=" text-sm">
+          <div className="min-w-0">
+            <Link href={blockAddressUrl} className="block truncate text-sm">
               {ensName.data ?? nft.creatorAddress}
             </Link>
           </div>
