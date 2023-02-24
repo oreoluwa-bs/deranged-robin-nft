@@ -32,3 +32,7 @@ export function calculateDifficulty(totalAttempts: number, totalWins: number) {
 
 //   return difficultyScore;
 // }
+
+export function calculateGuessSimilarity(guess: string, prompt: string) {
+  return guess == prompt;
+}
