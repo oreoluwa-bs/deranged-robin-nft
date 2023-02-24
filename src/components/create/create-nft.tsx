@@ -17,10 +17,14 @@ import { TransactionReceipt } from "@ethersproject/abstract-provider";
 import { Dialog, Transition } from "@headlessui/react";
 import { SendTransactionResult } from "@wagmi/core";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 export default function CreateNFT() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isPrepareMintModalOpen, setIsPrepareMintModalOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const existingPrompt = searchParams.get("prompt");
+
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [predictionURI, setPredictionURI] = useState<string>();
   const [mintContract, setMintContract] =
@@ -152,6 +156,7 @@ export default function CreateNFT() {
         </div>
         <div className="max-w-sdm">
           <GenerateNFTForm
+            existingPrompt={existingPrompt ?? undefined}
             existingPrediction={prediction}
             onSuccess={(p) => setPrediction(p)}
           />

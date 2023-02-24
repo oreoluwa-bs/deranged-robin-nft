@@ -23,12 +23,14 @@ const imageSizes = [
 ];
 
 interface GenerateNFTFormProps {
+  existingPrompt?: string;
   existingPrediction: Prediction | null;
   onSuccess?: (prediction: Prediction) => void;
 }
 
 export default function GenerateNFTForm({
   existingPrediction,
+  existingPrompt,
   onSuccess = (v) => {
     console.log(v);
   },
@@ -102,6 +104,7 @@ export default function GenerateNFTForm({
             <textarea
               name="prompt"
               id="prompt"
+              defaultValue={existingPrompt}
               className="min-h-[150px] w-full rounded-lg bg-slate-50/10 px-2 py-2"
               placeholder="Enter a prompt to create original, realistic images and art from a text description"
               required

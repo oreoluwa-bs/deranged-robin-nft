@@ -12,6 +12,7 @@ export default function Navbar() {
             alt="DERANGED ROBIN NFT"
             width={48}
             height={48}
+            priority
           />
           <span className="hidden md:inline-block">DERANGED ROBIN NFT</span>
         </Link>
