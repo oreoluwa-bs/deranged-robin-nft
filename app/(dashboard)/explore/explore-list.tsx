@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
+import { HiArrowRight } from "react-icons/hi2";
 import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
 import useSWRMutation from "swr/mutation";
@@ -59,6 +60,27 @@ export default function ExploreList({ initialData }: ExploreListProps) {
           </ul>
         );
       })}
+
+      {(data?.[0]?.data.nfts.length ?? 0) < 1 ? (
+        <div className="flex items-center justify-center text-center">
+          <div>
+            <p className="text-3xl">No NFT&apos;s to guess yet</p>
+            <p className="mx-auto mt-6 max-w-lg ">
+              Make the coolest NFT you could think off from a phrase - Let
+              others guess what the phase is.
+            </p>
+            <div className="">
+              <Link
+                href="/create"
+                className=" mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white"
+              >
+                Get Started
+                <HiArrowRight />
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {data?.[data.length - 1].data.cursor ? (
         <div>
