@@ -40,6 +40,7 @@ async function POST(input: { prompt: string; width: string; height: string }) {
       input: {
         prompt: input.prompt,
         image_dimensions: `${input.width}x${input.height}`,
+        prompt_strength: 1,
       },
     }),
     headers: {

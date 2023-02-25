@@ -18,13 +18,42 @@ import { Dialog, Transition } from "@headlessui/react";
 import { SendTransactionResult } from "@wagmi/core";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
+import useSWRMutation from "swr/mutation";
 import { CgSpinnerTwo } from "react-icons/cg";
+import { fetcher } from "~/utils/fetcher";
 
 export default function CreateNFT() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isPrepareMintModalOpen, setIsPrepareMintModalOpen] = useState(false);
   const searchParams = useSearchParams();
   const existingPrompt = searchParams.get("prompt");
+
+  const toWeb3StorageMut = useSWRMutation(
+    "/api/nft/generated/store",
+    (url: string, { arg }: any) => {
+      return fetcher(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(arg),
+      });
+    },
+    {
+      onSuccess(data) {
+        setPredictionURI(data.data.imageURL);
+
+        // Trigger mint
+        setIsPrepareMintModalOpen(true);
+      },
+      onError(err) {
+        toast.error("Guess the prompt", {
+          description: errorToErrorMessage(err),
+          important: true,
+        });
+      },
+    }
+  );
 
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [predictionURI, setPredictionURI] = useState<string>();
@@ -78,25 +107,10 @@ export default function CreateNFT() {
 
   async function mintNFT(_pred: Prediction) {
     // Transfer image from replicate to web3 storage
-    const response = await fetch("/api/nft/generated/store", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: _pred.output[0],
-        filename: `${_pred.id}.${getFileExtension(_pred.output[0])}`,
-      }),
+    toWeb3StorageMut.trigger({
+      url: _pred.output[0],
+      filename: `${_pred.id}.${getFileExtension(_pred.output[0])}`,
     });
-
-    const {
-      data: { imageURI, imageURL },
-    } = await response.json();
-    // console.log({ imageURI, imageURL });
-    setPredictionURI(imageURL);
-
-    // Trigger mint
-    setIsPrepareMintModalOpen(true);
   }
 
   return (
@@ -128,21 +142,27 @@ export default function CreateNFT() {
             </div>
           ) : null}
 
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-6 bg-black px-4 py-5 backdrop-blur-md">
-            {/* Mint NFT */}
-            <button
-              className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white disabled:cursor-not-allowed"
-              disabled={isPredicting || isMinting}
-              onClick={() => {
-                if (!prediction) return;
-                mintNFT(prediction);
-              }}
-            >
-              Mint
-            </button>
+          {(prediction?.output?.length ?? 0) > 0 ? (
+            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-6 bg-black px-4 py-5 backdrop-blur-md">
+              {/* Mint NFT */}
+              <button
+                className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white disabled:cursor-not-allowed"
+                disabled={
+                  isPredicting || isMinting || toWeb3StorageMut.isMutating
+                }
+                onClick={() => {
+                  if (!prediction) return;
+                  mintNFT(prediction);
+                }}
+              >
+                Mint
+                {isPredicting || isMinting || toWeb3StorageMut.isMutating ? (
+                  <CgSpinnerTwo className="animate-spin" />
+                ) : null}
+              </button>
 
-            {/* Opens popup that pushes to explore */}
-            {/* <button
+              {/* Opens popup that pushes to explore */}
+              {/* <button
               className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white disabled:cursor-not-allowed"
               disabled={isPredicting || isMinting}
               onClick={() => {
@@ -153,7 +173,8 @@ export default function CreateNFT() {
             >
               Share
             </button> */}
-          </div>
+            </div>
+          ) : null}
         </div>
         <div className="max-w-sdm">
           <GenerateNFTForm
@@ -178,7 +199,7 @@ export default function CreateNFT() {
         isOpen={isPrepareMintModalOpen}
         closeModal={() => setIsPrepareMintModalOpen(false)}
         config={config}
-        enableMint={isDonePreparing}
+        enableMint={isDonePreparing || !isMinting}
         onSuccess={(data) => {
           setMintContract(data);
         }}
@@ -312,9 +333,10 @@ function PrepareToMint({
   enableMint: boolean;
   onSuccess: (data: SendTransactionResult) => void;
 }) {
+  const [isMinting, setIsMinting] = useState(false);
   const mintContract = useContractWrite(config);
 
-  const isLoading = mintContract.isLoading || !enableMint;
+  const isLoading = mintContract.isLoading || !enableMint || isMinting;
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -362,12 +384,19 @@ function PrepareToMint({
                     className="flex items-center justify-center gap-2 rounded-lg bg-gray-700 px-4 py-2 text-white  disabled:cursor-not-allowed"
                     onClick={async () => {
                       try {
+                        setIsMinting(true);
                         const res = await mintContract.writeAsync?.();
 
                         if (res) {
                           onSuccess(res);
                         }
-                      } catch (error) {}
+                      } catch (error) {
+                        toast.error("Mint NFT", {
+                          description: errorToErrorMessage(error),
+                        });
+                      } finally {
+                        setIsMinting(false);
+                      }
                     }}
                     disabled={isLoading}
                   >
