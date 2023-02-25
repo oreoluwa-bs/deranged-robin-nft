@@ -55,7 +55,10 @@ async function POST(input: {
   return post;
 }
 
-async function GET(input: { cursor?: string | null; limit: number | string }) {
+export async function GET(input: {
+  cursor?: string | null;
+  limit: number | string;
+}) {
   const { cursor, limit = 30 } = input;
 
   console.log(input);
