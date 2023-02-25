@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "npx prisma generate",
+    "postinstall": "npx prisma generate && npx prisma db push",
     "hardhat:deploy": "npx hardhat run scripts/deploy.js",
     "dev": "next dev",
     "build": "npx hardhat compile && next build",
