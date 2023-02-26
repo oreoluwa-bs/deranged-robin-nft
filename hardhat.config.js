@@ -1,6 +1,8 @@
 require("dotenv").config();
 require("@nomicfoundation/hardhat-toolbox");
 
+// Can't deploy to mainnet cause -> need eth
+
 const config = {
   solidity: "0.8.17",
   networks: {
