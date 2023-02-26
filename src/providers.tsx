@@ -9,15 +9,17 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { Toaster } from "sonner";
 
+// Can't deploy to mainnet cause -> need eth
+
 const { chains, provider, webSocketProvider } = configureChains(
-  [process.env.NODE_ENV !== "production" ? goerli : mainnet],
+  [process.env.NODE_ENV !== "production" ? goerli : goerli],
   [
     publicProvider(),
     alchemyProvider({
       apiKey:
         process.env.NODE_ENV !== "production"
           ? process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY!
-          : process.env.NEXT_PUBLIC_ALCHEMY_API_KEY!,
+          : process.env.NEXT_PUBLIC_ALCHEMY_GOERLI_API_KEY!,
     }),
   ]
 );
